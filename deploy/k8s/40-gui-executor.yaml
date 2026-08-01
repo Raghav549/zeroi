@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gui-executor
+  namespace: zeroi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gui-executor
+  template:
+    metadata:
+      labels:
+        app: gui-executor
+    spec:
+      containers:
+        - name: gui-executor
+          image: zeroi:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -m
+            - zeroi.services.gui_executor
+          envFrom:
+            - configMapRef:
+                name: zeroi-config
