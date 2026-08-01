@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planner
+  namespace: zeroi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: planner
+  template:
+    metadata:
+      labels:
+        app: planner
+    spec:
+      containers:
+        - name: planner
+          image: zeroi:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -m
+            - zeroi.services.planner
+          envFrom:
+            - configMapRef:
+                name: zeroi-config
