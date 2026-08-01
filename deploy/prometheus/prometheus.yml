@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: zeroi
+    static_configs:
+      - targets:
+          - harness:8000
+          - planner:8000
+          - memory:8000
+          - gui-executor:8000
+          - cli-executor:8000
+          - browser:8000
+          - deepsearch:8000
+          - api-gateway:8000
+          - device-manager:8000
+          - session-manager:8000
+          - artifact-manager:8000
+          - scheduler:8000
+          - notification-processor:8000
+          - event-processor:8000
+          - verification:8000
+          - logging-service:8000
+          - metrics-service:8000
+          - security:8000
