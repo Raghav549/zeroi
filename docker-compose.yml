@@ -1,0 +1,193 @@
+name: zeroi
+
+x-zeroi-service: &zeroi-service
+  build:
+    context: .
+    dockerfile: deploy/Dockerfile
+  env_file: .env
+  depends_on:
+    - redis
+    - postgres
+  restart: unless-stopped
+  networks:
+    - zeroi
+
+services:
+  redis:
+    image: redis:7-alpine
+    profiles: ["infra", "full"]
+    ports:
+      - "6379:6379"
+    networks:
+      - zeroi
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["infra", "full"]
+    environment:
+      POSTGRES_USER: zeroi
+      POSTGRES_PASSWORD: zeroi
+      POSTGRES_DB: zeroi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - zeroi
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["infra", "full"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: zeroi
+      MINIO_ROOT_PASSWORD: zeroi-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    networks:
+      - zeroi
+
+  searxng:
+    image: searxng/searxng:latest
+    profiles: ["infra", "full"]
+    ports:
+      - "8080:8080"
+    networks:
+      - zeroi
+
+  # Optional official Qwen-UI-Agent container.
+  # Set QWEN_UI_AGENT_IMAGE to the official image you build from the Qwen-UI-Agent repo.
+  qwen-ui-agent:
+    image: ${QWEN_UI_AGENT_IMAGE:-ghcr.io/qwenlm/qwen-ui-agent:latest}
+    profiles: ["qwen"]
+    ports:
+      - "8010:8010"
+    env_file: .env
+    networks:
+      - zeroi
+
+  harness:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.harness
+    ports:
+      - "8100:8000"
+
+  planner:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.planner
+
+  memory:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.memory
+    ports:
+      - "8101:8000"
+
+  gui-executor:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.gui_executor
+
+  cli-executor:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.cli_executor
+
+  browser:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.browser
+
+  deepsearch:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.deepsearch
+
+  api-gateway:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.api_gateway
+
+  device-manager:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.device_manager
+    ports:
+      - "8102:8000"
+
+  session-manager:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.session_manager
+    ports:
+      - "8103:8000"
+
+  artifact-manager:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.artifact_manager
+    ports:
+      - "8104:8000"
+
+  scheduler:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.scheduler
+
+  notification-processor:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.notification_processor
+    ports:
+      - "8105:8000"
+
+  event-processor:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.event_processor
+
+  verification:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.verification
+
+  logging-service:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.logging_service
+
+  metrics-service:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.metrics_service
+    ports:
+      - "8106:8000"
+
+  security:
+    <<: *zeroi-service
+    profiles: ["full"]
+    command: python -m zeroi.services.security
+    ports:
+      - "8107:8000"
+
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["observability"]
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - zeroi
+
+networks:
+  zeroi:
+
+volumes:
+  pgdata:
+  miniodata:
