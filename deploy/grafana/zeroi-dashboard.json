@@ -1,0 +1,34 @@
+{
+  "title": "zeroi Operating System",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Harness Up",
+      "targets": [
+        {
+          "expr": "up{job=\"zeroi\"}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Python Process CPU",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[5m])"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 1
+}
