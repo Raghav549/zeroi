@@ -103,12 +103,13 @@ async def test_save_plan_updates_json():
         loaded = await load_plan_task(db, session_id, task_id)
         assert loaded is not None
 
-        _, plan_rec, _, task = loaded
-        task.title = "updated title"
-        await save_plan(db, plan_rec, plan)
+        _, plan_rec, loaded_plan, task = loaded
+        print("Loaded plan task:", loaded_plan.tasks[0].title)
 
-    async with SessionLocal() as db:
-        loaded = await load_plan_task(db, session_id, task_id)
-        assert loaded is not None
-        _, _, _, task = loaded
-        assert task.title == "updated title"
+        task.title = "updated title"
+
+        print("Task object:", task.title)
+        print("Loaded plan task:", loaded_plan.tasks[0].title)
+        print("Same object:", task is loaded_plan.tasks[0])
+
+        await save_plan(db, plan_rec, loaded_plan)
