@@ -50,5 +50,10 @@ async def load_plan_task(
 
 async def save_plan(db: AsyncSession, plan_rec: PlanRecord, plan: Plan) -> None:
     plan_rec.plan = plan.model_dump(mode="json")
+
+    db.add(plan_rec)
     flag_modified(plan_rec, "plan")
+
+    await db.flush()
     await db.commit()
+    await db.refresh(plan_rec)
