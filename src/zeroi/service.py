@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Awaitable, Callable, Optional
 
@@ -63,5 +64,10 @@ class Service:
         if router:
             self.app.include_router(router)
 
-    def run(self, port: int = 8000) -> None:
-        uvicorn.run(self.app, host="0.0.0.0", port=port)
+    def run(self, port: int | None = None) -> None:
+    port = port or int(os.getenv("PORT", "8000"))
+    uvicorn.run(
+        self.app,
+        host="0.0.0.0",
+        port=port,
+    )
