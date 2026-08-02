@@ -60,10 +60,10 @@ class Service:
         async def healthz():
             return {"service": name, "status": "ok"}
 
-        if router:
+          if router:
             self.app.include_router(router)
 
-            def run(self, port: int = 8000) -> None:
+    def run(self, port: int = 8000) -> None:
         uvicorn.run(
             self.app,
             host="0.0.0.0",
