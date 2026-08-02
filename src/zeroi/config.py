@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     redis_url: str = "redis://localhost:6379/0"
-    database_url: str = "sqlite+aiosqlite:///./.data/zeroi.db"
+    database_url: str = "sqlite+aiosqlite:///./zeroi.db"
 
     artifact_backend: str = "local"
     artifact_local_dir: str = ".data/artifacts"
